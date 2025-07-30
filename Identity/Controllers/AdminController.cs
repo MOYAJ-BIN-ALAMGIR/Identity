@@ -6,14 +6,21 @@ namespace Identity.Controllers
 {
     public class AdminController : Controller
     {
-        private UserManager<AppUser> UserManager;
+        private UserManager<AppUser> userManager;
+        private IPasswordHasher<AppUser> PasswordHasher;
+        public AdminController(UserManager<AppUser> usrMgr, IPasswordHasher<AppUser> passwordHasher)
+            {
+            userManager = usrMgr;
+            PasswordHasher = PasswordHasher;
+            }
+
         public AdminController(UserManager<AppUser> usrMgr)
         {
-            UserManager = usrMgr;
+            userManager = usrMgr;
         }
         public IActionResult Index()
         {
-            return View(UserManager.Users);
+            return View(userManager.Users);
         }
 
         public ViewResult create() => View();
@@ -27,7 +34,7 @@ namespace Identity.Controllers
                     UserName = user.Name,
                     Email = user.Email
                 };
-                IdentityResult result = await UserManager.CreateAsync(appUser, user.Password);
+                IdentityResult result = await userManager.CreateAsync(appUser, user.Password);
                 if (result.Succeeded)
                     return RedirectToAction("Index");
                 else
